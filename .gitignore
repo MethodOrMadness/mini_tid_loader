@@ -10,4 +10,4 @@ git_version.h
 tags
 cscope.out
 *.swp
-.code-workspace
+*.code-workspace
