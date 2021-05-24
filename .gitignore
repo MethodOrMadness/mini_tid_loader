@@ -1,0 +1,12 @@
+git_version.h
+*.d
+.deps/*.d
+*.bin
+*.elf
+*.map
+*~
+*.diff
+*.o
+tags
+cscope.out
+*.swp
