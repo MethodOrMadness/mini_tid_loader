@@ -97,7 +97,7 @@ int main(void)
 
 	ipc_initialize();
 	ipc_slowping();
-
+	boot2_run(1,2);
 	gecko_init();
     input_init();
 	init_fb(vmode);
