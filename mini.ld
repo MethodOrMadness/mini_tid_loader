@@ -11,7 +11,7 @@ Copyright (C) 2009			Andre Heider "dhewg" <dhewg@wiibrew.org>
 OUTPUT_FORMAT("elf32-powerpc")
 OUTPUT_ARCH(powerpc:common)
 
-ENTRY(__init)
+ENTRY(_realmode_vector)
 
 PHDRS {
 	realmode	PT_LOAD FLAGS(5);
@@ -30,19 +30,8 @@ SECTIONS {
 	.text : { *(.text) *(.text.*) . = ALIGN(32); }
 
 	.data : { *(.data) *(.data.*) . = ALIGN(32); }
-	.sdata : {
-		PROVIDE (__SDATA_START__ = .);
-		*(.sdata) *(.sdata.*) . = ALIGN(32);
-	}
+	.sdata : { *(.sdata) *(.sdata.*) . = ALIGN(32); }
 	.rodata : { *(.rodata) *(.rodata.*) . = ALIGN(32); }
-	.sdata2 : {
-		PROVIDE (__SDATA2_START__ = .);
-		*(.sdata2 .sdata2.*)
-	}
-	.sbss2 : {
-		*(.sbss2 .sbss2.*)
-		PROVIDE (__SBSS2_END__ = .);
-	}
 	.stack : {
 		_stack_top = .;
 		. += 32768;
@@ -53,10 +42,7 @@ SECTIONS {
 
 	__bss_start = .;
 	.bss : { *(.bss) }
-	.sbss : { 
-		*(.sbss) 
-		PROVIDE (__SBSS_END__ = .);
-	}
+	.sbss : { *(.sbss) }
 	__bss_end = .;
 
 	. = ALIGN(0x10000);

@@ -15,8 +15,5 @@ include usb/Makefile
 
 include common.mk
 
-upload: $(TARGET)
-	@$(DEVKITPPC)/bin/bootmii -p $<
-
 .PHONY: upload
 

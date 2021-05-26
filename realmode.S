@@ -47,9 +47,9 @@ Copyright (C) 2008		Segher Boessenkool <segher@kernel.crashing.org>
 	.section .realmode,"ax",@progbits
 	.extern _start
 	.align 2
-	.globl __init
+	.globl _realmode_vector
 
-__init:
+_realmode_vector:
 	// HID0 = 00110c64:
 	// bus checkstops off, sleep modes off,
 	// caches off, caches invalidate,
