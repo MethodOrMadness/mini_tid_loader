@@ -30,10 +30,11 @@ Copyright (C) 2009              John Kelley <wiidev@kelley.ca>
 #include "sha1.h"
 #include "hollywood.h"
 
-#define MINIMUM_MINI_VERSION 0x00010001
+#if !defined(TID_HI) && !defined(TID_LO)
+#define TID_HI 0x1
+#define TID_LO 0x2
+#endif
 
-otp_t otp;
-seeprom_t seeprom;
 
 static void dsp_reset(void)
 {
@@ -47,6 +48,7 @@ static char ascii(char s) {
   if(s > 0x7E) return '.';
   return s;
 }
+
 
 void hexdump(void *d, int len) {
   u8 *data;
@@ -65,25 +67,9 @@ void hexdump(void *d, int len) {
     printf("\n");
   }
 }
-	
-void testOTP(void)
-{
-	printf("reading OTP...\n");
-	getotp(&otp);
-	printf("read OTP!\n");
-	printf("OTP:\n");
-	hexdump(&otp, sizeof(otp));
-
-	printf("reading SEEPROM...\n");
-	getseeprom(&seeprom);
-	printf("read SEEPROM!\n");
-	printf("SEEPROM:\n");
-	hexdump(&seeprom, sizeof(seeprom));
-}
 
 int main(void)
 {
-	int vmode = -1;
 	exception_init();
 	dsp_reset();
 
@@ -97,138 +83,7 @@ int main(void)
 
 	ipc_initialize();
 	ipc_slowping();
-
-	gecko_init();
-    input_init();
-	init_fb(vmode);
-
-	VIDEO_Init(vmode);
-	VIDEO_SetFrameBuffer(get_xfb());
-	VISetupEncoder();
-
-	u32 version = ipc_getvers();
-	u16 mini_version_major = version >> 16 & 0xFFFF;
-	u16 mini_version_minor = version & 0xFFFF;
-	printf("Mini version: %d.%0d\n", mini_version_major, mini_version_minor);
-
-	if (version < MINIMUM_MINI_VERSION) {
-		printf("Sorry, this version of MINI (armboot.bin)\n"
-			"is too old, please update to at least %d.%0d.\n", 
-			(MINIMUM_MINI_VERSION >> 16), (MINIMUM_MINI_VERSION & 0xFFFF));
-		for (;;) 
-			; // better ideas welcome!
-	}
-
-	/* external ohci */
-	usb_init(OHCI0_REG_BASE);
-
-	/* internal ohci */
-	//usb_init(OHCI1_REG_BASE);
-
-	/* load HID keyboard driver */
-	usb_hidkb_init();
-
-wait_kb:
-	/* wait for usb keyboard plugged in */
-	if(!usb_hidkb_inuse()) {
-		print_str("plug in an usb keyboard", 23);
-	}
-	while(!usb_hidkb_inuse());
-
-	print_str("hello keyboard :)", 17);
-
-#define FONT_WIDTH  13
-#define FONT_HEIGHT 15
-#define STDOUT_BORDER_LEFT 20
-#define STDOUT_BORDER_RIGHT 650
-#define STDOUT_BORDER_TOP 20
-#define STDOUT_BORDER_BOTTOM 550
-#define TABSIZE 4
-	/* you are welcome to make this nice :) */
-	char str[7];
-	u16 i, j, ret=0, y=STDOUT_BORDER_TOP, x=STDOUT_BORDER_LEFT;
-	u16 old_x, old_y;
-	struct kbrep *k, *old=NULL;
-
-	while(usb_hidkb_inuse()) {
-		memset(str, '\0', 7);
-		k = usb_hidkb_getChars();
-		j=0;
-		old_x = x; /* save actual x and y position for printing after the loop */
-		old_y = y;
-		for(i=0; k->keys[i]>0; i++) {
-
-			/* dropping char's if necessary */
-			if(old) {
-				for(j=0; j < 6; j++) {
-					if(old->keys[j] == k->keys[i]) {
-						ret = 1;
-						break;
-					}
-				}
-			}
-			if(ret) {
-				ret = 0;
-				continue;
-			}
-			j = 0;
-
-			unsigned char key = usb_hidkb_get_char_from_keycode(k->keys[i],
-					(k->mod & MOD_lshift) || (k->mod & MOD_rshift));
-			/* no key or key not relevant? next, please. */
-			if (key == 0)
-				continue;
-
-			/* RETURN pressed? */
-			if (key == '\n') {
-				x = STDOUT_BORDER_LEFT;
-				y += FONT_HEIGHT;
-				printf("\n");
-			/* TAB pressed? */
-			} else if (key == '\t') {
-				x += (TABSIZE*FONT_WIDTH);
-				printf("\t");
-
-			/* BACKSPACE pressed? */
-			} else if (key == '\r') {
-				/* TODO */
-
-			/* now we have only printable characters left */
-			} else {
-				x += FONT_WIDTH;
-				str[j] = key;
-				j++;
-			}
-
-			/* line full? break! */
-			if(x > (STDOUT_BORDER_RIGHT-FONT_WIDTH)) {
-				x = STDOUT_BORDER_LEFT;
-				y += FONT_HEIGHT;
-			}
-			/* screen full? start again at top */
-			if(y > (STDOUT_BORDER_BOTTOM-FONT_HEIGHT)) {
-				y = STDOUT_BORDER_TOP;
-			}
-		}
-		if(old) {
-			free(old);
-		}
-		old = k;
-		if(j > 0) { /* when there was any printable stuff, show it */
-			print_str_noscroll(old_x, old_y, str);
-			printf("%s", str);
-		}
-	}
-
-	goto wait_kb;
-
-#if 0
-	printf("===============================\n");
-
-	SHA1TestCases();
-
-	printf("bye, world!\n");
-#endif
+	boot2_run(TID_HI, TID_LO);
 
 	return 0;
 }

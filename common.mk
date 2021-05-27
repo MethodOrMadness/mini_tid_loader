@@ -30,7 +30,7 @@ endif
 %.o: %.c
 	@echo "  COMPILE   $<"
 	@mkdir -p $(DEPDIR)
-	@$(CC) $(CFLAGS) $(DEFINES) -Wp,-MMD,$(DEPDIR)/$(*F).d,-MQ,"$@",-MP -c $< -o $@
+	@$(CC) $(CFLAGS) $(DEFINES) -D TID_HI=$(TID_HI) -D TID_LO=$(TID_LO) -Wp,-MMD,$(DEPDIR)/$(*F).d,-MQ,"$@",-MP -c $< -o $@
 
 %.o: %.s
 	@echo "  ASSEMBLE  $<"
