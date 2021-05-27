@@ -20,5 +20,5 @@ A friend who loaned his time to test our code with a USBGecko, allowing Andy to 
 
 Lewurm & co for the original ppcskel, which Andy has fixed up for use with the compiler linked above
 
-[1](https://github.com/AndrewPiroli/ppcskel)
-[2](http://gh.andrewtech.net/assets/static/ppc-cross.tar.7z)
+[1]: https://github.com/AndrewPiroli/ppcskel
+[2]: http://gh.andrewtech.net/assets/static/ppc-cross.tar.7z
