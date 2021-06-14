@@ -4,7 +4,7 @@ A Homebrew loader to load ANY titleID from nand
 
 ## About
 
-While using gumboot, I couldnt find any easy way to just autoboot, or boot, to the system menu, so I'm using this code based on [ppcskel][1] (a barebones MINI homebrew), to load the system menu using mini's `boot2_run` feature.
+While using gumboot, I couldnt find any easy way to just autoboot, or boot, to the system menu, so I'm using this code based on [ppcskel][1] (a barebones MINI homebrew), to load the system menu using mini's `boot2_run` function.
 
 ## Usage
 
